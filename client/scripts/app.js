@@ -1,11 +1,17 @@
 // YOUR CODE HERE:
 
-
-
+window.godObject = [];
 
 var app = {
 
   friendList: {},
+
+//this should have all of the rooms from the godObject
+  roomData: [],
+
+  defaultRoom: [],
+
+  currentRoom: [],
 
   server: "http://parse.sfm8.hackreactor.com/chatterbox/classes/messages",
 
@@ -20,7 +26,7 @@ var app = {
       data: JSON.stringify(message),
       contentType: 'application/json',
       success: function (data) {
-        console.log(data, "- what the data looks like coming back");
+        // var result = data.results;
         console.log('chatterbox: Message sent');
       },
       error: function (data) {
@@ -36,8 +42,17 @@ var app = {
       type: 'GET',
       // data: undefined,
       contentType: 'application/json',
+
       success: function (data) {
-        console.log(data, "- what the data looks like coming back");
+        var result = data.results;
+        window.godObject.push(result);
+        result.forEach(function(obj) {
+          // console.log(obj.roomname);
+             // app.defaultRoom.push(obj);
+          app.renderRoom(obj.roomname);
+          app.renderMessage(obj);
+        });
+        
         console.log('chatterbox: Message sent');
       },
       error: function (data) {
@@ -52,17 +67,57 @@ var app = {
   },
   
   renderMessage: function(message) {
-    var messageToRender = '<div class="username"><span>'+ message.username +'</span><p>' + message.text +'</p></div>';
-    $('#chats').append(messageToRender).on('click', function() {
-  // var friend = $(this).find('span').text();
-  // app.friendList[friend] = friend;
-     app.handleUsernameClick.call(this);
-     });
+    var messageToRender = '<div class="username">username-<span> ' + message.username + '</span><p>text-' + message.text + '</p></div>';
+    $('#chats').append(messageToRender);
+    
+
+  //   $('#chats').append(messageToRender)
+  //.on('click', function() {
+  // // var friend = $(this).find('span').text();
+  // // app.friendList[friend] = friend;
+  //     app.handleUsernameClick.call(this);
+  //   });
+
   },
   
-  renderRoom: function(string) {
-    var room = '<div id="room">' + string + '</div>';
+//   renderRoomOptions: function(string) {
+// // this function go through every object from the server and show the roomname.
+    
+//   },
+
+  createNewRoom: function(newRoom) {
+    app.roomData.push(newRoom);
+    // app.currentRoom = newRoom;
+    var room = '<option class="room">' + newRoom + '</option>';
+
     $('#roomSelect').append(room);
+    $('select').change(function() {
+      app.jumpToRoom();
+    });
+
+    //$('select').change(function () {
+     // var optionSelected = $(this).find("option:selected");
+     // var valueSelected  = optionSelected.val();
+     // var textSelected   = optionSelected.text();
+    //});
+
+  },
+
+  renderRoom: function(chosenRoom) {
+    window.godObject.forEach(function(obj) {
+      if (obj.roomname === chosenRoom) {
+        app.currentRoom.push(obj);
+      }
+    });
+
+    app.currentRoom.forEach(function(room) {
+      // app.renderMessage(room);
+    });
+
+//once we have all the data ^
+//loop through the data
+//create a new html element for every obj in the data (appendTO whatever);
+    
   },
 
   handleUsernameClick: function() {
@@ -80,20 +135,57 @@ var app = {
     console.log("this should be the html node", friend);
     app.friendList[friend] = friend;
     console.log("the updated friendslist", app.friendList);
+  },
+
+  jumpToRoom: function() {
+    console.log("hello");
+    app.clearMessages();
+    //TBD
   }
+  
 };
 
 // A $( document ).ready() block.
-$(document ).ready(function() {
+$(document).ready(function() {
+  var newRoom;
+  app.fetch();
+
+  $('.addroom').on('click', function() {
+    newRoom = prompt('Enter your new room name');
+    app.createNewRoom.call(this, newRoom);
+  });
+
+  $('.sendmsg').on('click', function() {
+    var username = newRoom;
+    var messageValue = $('.messagebox').val();
+    var roomname = "bestroomever";
+    sendMsg(username, messageValue, roomname);
+  });
+
 
   $('.username').on('click', function() {
   // var friend = $(this).find('span').text();
   // app.friendList[friend] = friend;
-   (console.log(this, "the context inside the ready function on click"))
-   app.handleUsernameClick.call(this);
-   alert("clicked");
+    app.handleUsernameClick.call(this);
+    alert("clicked");
   });
+
+  // $('.room').onchange(function() {
+  //   app.jumpToRoom();
+  // });
+
+  var sendMsg = function(username, text, roomname) {
+    var obj = {};
+    obj.username = username;
+    obj.text = text;
+    obj.roomname = roomname; 
+    app.send(obj);
+    // app.fetch();
+  };
 });
+
+
+
    
 
 
