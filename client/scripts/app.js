@@ -28,6 +28,7 @@ var app = {
       success: function (data) {
         // var result = data.results;
         console.log('chatterbox: Message sent');
+        app.fetch();
       },
       error: function (data) {
         // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -67,8 +68,13 @@ var app = {
   },
   
   renderMessage: function(message) {
-    var messageToRender = '<div class="username">username-<span> ' + message.username + '</span><p>text-' + message.text + '</p></div>';
+    var messageToRender = '<div class="username">username<span class="test">' + message.username + '</span><p>text-' + message.text + '</p></div>';
     $('#chats').append(messageToRender);
+
+    // $('.username').on('click', function() {
+    //   app.handleUsernameClick.call(this);
+    //   // alert("clicked");
+    // });
     
 
   //   $('#chats').append(messageToRender)
@@ -95,12 +101,6 @@ var app = {
       app.jumpToRoom();
     });
 
-    //$('select').change(function () {
-     // var optionSelected = $(this).find("option:selected");
-     // var valueSelected  = optionSelected.val();
-     // var textSelected   = optionSelected.text();
-    //});
-
   },
 
   renderRoom: function(chosenRoom) {
@@ -120,27 +120,28 @@ var app = {
     
   },
 
-  handleUsernameClick: function() {
-   
-    //  this.click(function(){
-    //    alert("yay!");
-    //  })
-    // //access the user from the message and do something 
-    // (message).on('click', 'username', function() {
-    //   var user = message.username;
-    //   console.log("added click to this user");
-    // });
-    console.log("the this context", this);
-    var friend = $(this).find('span').text();
-    console.log("this should be the html node", friend);
-    app.friendList[friend] = friend;
-    console.log("the updated friendslist", app.friendList);
+  handleUsernameClick: function(user) {
+    // console.log("the this context", this);
+    // var friend = $(this).find('span').text();
+    // console.log("this should be the html node", friend);
+    app.friendList[user] = user;
+    console.log(app.friendList);
+    
+    // for (var friend in app.friendList) {
+    $('#friends-list').append('<span>' + user + '</span>');
+    // }
+    // console.log("the updated friendslist", app.friendList);
   },
 
   jumpToRoom: function() {
-    console.log("hello");
     app.clearMessages();
+    
     //TBD
+    //$('select').change(function () {
+     // var optionSelected = $(this).find("option:selected");
+     // var valueSelected  = optionSelected.val();
+     // var textSelected   = optionSelected.text();
+    //});
   }
   
 };
@@ -158,16 +159,17 @@ $(document).ready(function() {
   $('.sendmsg').on('click', function() {
     var username = newRoom;
     var messageValue = $('.messagebox').val();
-    var roomname = "bestroomever";
+    var roomname = 'bestroomever';
     sendMsg(username, messageValue, roomname);
   });
 
+  $('#chats').click('.username', function(event) {
+    console.log('event', event.target.innerHTML);
 
-  $('.username').on('click', function() {
-  // var friend = $(this).find('span').text();
-  // app.friendList[friend] = friend;
-    app.handleUsernameClick.call(this);
-    alert("clicked");
+    // var friend = $(this).find('span').text();
+    // app.friendList[friend] = friend;
+    app.handleUsernameClick(event.target.innerHTML);
+    
   });
 
   // $('.room').onchange(function() {
